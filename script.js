@@ -2,17 +2,23 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+
+
+    
+    // const textContainer = document.getElementById('textContainer');
+    
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#000");
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
-    50, // Increased FOV to capture more of the scene
+    15,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
 );
-camera.position.set(0, 2, 10); // Start farther back on the z-axis
+camera.position.set(0, 2, 8);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -30,7 +36,7 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
 directionalLight.position.set(5, 10, 7.5);
 scene.add(directionalLight);
 
-// Load 3D model
+
 const loader = new GLTFLoader();
 loader.load(
     'car.glb',
@@ -41,34 +47,45 @@ loader.load(
     }
 );
 
-// Variables to track camera rotation
-let azimuthalAngle = 0; // Horizontal rotation angle
-const radius = 15; // Increased radius to move the camera farther away
-const scrollSensitivity = 0.3; // Adjust this value to control the speed of rotation
+let azimuthalAngle = 0; 
+const radius = 15;
+const scrollSensitivity = 0.3;
+let fullRotations = 0;
 
-// Event listener for mouse wheel scroll
+
 window.addEventListener('wheel', (event) => {
     if (event.deltaY > 0) {
-        // Scrolling down moves the camera to the right
         azimuthalAngle += scrollSensitivity;
     } else if (event.deltaY < 0) {
-        // Scrolling up moves the camera to the left
         azimuthalAngle -= scrollSensitivity;
+    }
+
+    const rotations = Math.floor(azimuthalAngle / (2 * Math.PI));
+    const leftText = document.getElementById('leftText');
+    const rightText = document.getElementById('rightText');
+    const topText = document.getElementById('topText');
+    if (rotations > fullRotations) {
+        fullRotations = rotations;
+        console.log(fullRotations);
+
+        if (fullRotations === 3) {
+            leftText.style.left = '10%';
+            rightText.style.right = '10%';
+            topText.style.top = '10%';
+        }
     }
 });
 
-// Update camera position based on azimuthal angle
 function updateCameraPosition() {
     camera.position.x = radius * Math.sin(azimuthalAngle);
     camera.position.z = radius * Math.cos(azimuthalAngle);
-    camera.lookAt(0, 0, 0); // Ensure the camera always looks at the center
+    camera.lookAt(0, 0, 0);
 }
 
-// Animation loop
 function animate() {
     requestAnimationFrame(animate);
 
-    updateCameraPosition(); // Update camera based on azimuthal angle
+    updateCameraPosition();
     controls.update();
     renderer.render(scene, camera);
 }
